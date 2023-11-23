@@ -1,0 +1,12 @@
+.states {
+    fill: #ccc;
+    stroke: #fff;
+  }
+
+  .symbol {
+    fill-opacity: .8;
+    stroke: #fff;
+  }
+  .circle:hover{
+    fill: red
+  }
