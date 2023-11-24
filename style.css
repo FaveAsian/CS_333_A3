@@ -7,6 +7,13 @@
   fill-opacity: .8;
   stroke: #fff;
 }
-.circle:hover{
+
+.country {
+  fill: lightgray;
+  stroke: white;
+  stroke-width: 0.5;
+}
+
+.country:hover{
   fill: red
 }
