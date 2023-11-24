@@ -30,9 +30,7 @@ async function ready(){
         .data(countries.features)
         .enter().append("path")
         .attr("d", path)
-        .attr("fill", "lightgray")
-        .attr("stroke", "white")
-        .attr("stroke-width", 0.5);
+        .attr("class", "country")
     
     // Add a border around the map
     svg.append("rect")
