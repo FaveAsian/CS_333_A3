@@ -17,3 +17,11 @@
 .country:hover{
   fill: red
 }
+
+.tooltip {
+  position: absolute;
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 10px;
+  display: none;
+}
