@@ -1,7 +1,7 @@
 let width = 960, height = 500;
 
 let projection = d3.geoMercator()
-    .scale(150) // scale to zoom in and out of the map
+    .scale(125) // scale to zoom in and out of the map
     .translate([width / 2, height / 2]);
 
 let path = d3.geoPath().projection(projection);
@@ -33,9 +33,21 @@ async function ready(){
         .attr("fill", "lightgray")
         .attr("stroke", "white")
         .attr("stroke-width", 0.5);
+    
+    // Add a border around the map
+    svg.append("rect")
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("width", width)
+        .attr("height", height)
+        .attr("stroke", "black")
+        .attr("stroke-width", 2)
+        .attr("fill", "none");
 }
 
+// handles the zooming and panning
 function handleZoom(e){
+    //  Easy zooming and panning
     svg.selectAll("path")
         .attr("transform", e.transform)
 }
