@@ -40,8 +40,8 @@ async function ready(){
     });
     // Add life expectancy data to countries
     countries.features.forEach(d => {
-        // Assuming the country name is stored in d.properties.name
-        d.properties.lifeExpec = lifeExpecLookup[d.properties.name];
+        // Assuming the country name is stored in d.properties.name_long
+        d.properties.lifeExpec = lifeExpecLookup[d.properties.name_long];
     });
 
     svg.selectAll("path")
