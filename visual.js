@@ -17,6 +17,7 @@ let tooltip = d3.select("body")
 // https://www.d3indepth.com/zoom-and-pan/
 let zoom = d3.zoom()
     .scaleExtent([1, 8])
+    .translateExtent([[0, 0], [width, height]]) // restrict panning to within the map area
     .on("zoom", handleZoom)
 
 svg.call(zoom)
@@ -47,6 +48,13 @@ async function ready(){
         .attr("stroke", "black")
         .attr("stroke-width", 2)
         .attr("fill", "none");
+
+    // Add event listener for the slider
+    document.getElementById('yearSlider').addEventListener('input', function(e) {
+        let year = e.target.value;
+        document.getElementById('yearDisplay').textContent = year;
+        updateData(year);
+    });
 }
 
 // handles the zooming and panning
@@ -69,4 +77,17 @@ function mouseOverEvent(d){
 function mouseOutEvent(d){
     // Hide tooltip on mouseout
     tooltip.style("display", "none");
+}
+
+async function updateData(year) {
+    let filteredData = data.features.filter(d => d.properties.year === year);
+    // Assuming each data point is a [longitude, latitude] pair
+    svg.selectAll("circle").remove(); // remove old circles
+    filteredData.forEach(function(d) {
+        let coordinates = projection(d.geometry.coordinates);
+        svg.append("circle")
+            .attr("cx", coordinates[0])
+            .attr("cy", coordinates[1])
+            .attr("r", 5); // radius of circle
+    });
 }

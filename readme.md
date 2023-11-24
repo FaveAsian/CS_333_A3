@@ -9,5 +9,5 @@ python -m http.server --bind localhost 8080
 Then put in the below link in web browser with the name of the target html file.
 
 ```
-http://localhost:8080/yourfile.html
+http://localhost:8080/index.html
 ```
