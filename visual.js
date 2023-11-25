@@ -6,7 +6,7 @@ let projection = d3.geoMercator()
 
 let path = d3.geoPath().projection(projection);
 
-let svg = d3.select("#map-container").append("svg")
+let mapSvg = d3.select("#map-container").append("svg")
     .attr("width", width)
     .attr("height", height);
 
@@ -15,12 +15,12 @@ let tooltip = d3.select("body")
     .attr("class", "tooltip");
 
 // https://www.d3indepth.com/zoom-and-pan/
-let zoom = d3.zoom()
-    .scaleExtent([1, 8])
+let mapZoom = d3.zoom()
+    .scaleExtent([1, 10])
     .translateExtent([[-30, 30], [width, height-100]]) // restrict panning to within the map area
     .on("zoom", handleZoom)
 
-svg.call(zoom)
+mapSvg.call(mapZoom)
 
 let barWidth = 200;
 let barHeight = 150;
@@ -31,7 +31,8 @@ let barSvg = d3.select("#bar-graph-container").append("svg")
 
 ready();
 
-let data, countries;
+let lifeExpec, countries;
+let countryList = new Set()
 
 async function ready(){
     let lifeExpec = await d3.json("life_expec.json");
@@ -51,16 +52,17 @@ async function ready(){
         d.properties.lifeExpec = lifeExpecLookup[d.properties.name_long];
     });
 
-    svg.selectAll("path")
+    mapSvg.selectAll("path")
         .data(countries.features)
         .enter().append("path")
         .attr("d", path)
         .attr("class", "country")
         .on("mouseover", mouseOverEvent)
-        .on("mouseout", mouseOutEvent);
+        .on("mouseout", mouseOutEvent)
+        .on("click", handleClick);
 
     // Add a border around the map
-    svg.append("rect")
+    mapSvg.append("rect")
         .attr("x", 0)
         .attr("y", 0)
         .attr("width", width)
@@ -79,14 +81,14 @@ async function ready(){
 // handles the zooming and panning
 function handleZoom(e){
     //  Easy zooming and panning
-    svg.selectAll("path")
+    mapSvg.selectAll("path")
         .attr("transform", e.transform)
 }
 
 function mouseOverEvent(d){
     let countryData = d3.select(this).datum();
     let [x, y] = d3.pointer(d);
-
+    
     // Get the year from the slider
     let sliderYear = d3.select("#yearSlider").property("value");
 
@@ -109,8 +111,8 @@ function mouseOverEvent(d){
         }
     }
 
-    tooltip.style("left", (x) + "px")
-        .style("top", (y) + "px")
+    tooltip.style("left", (x + 10) + "px")
+        .style("top", (y - 15) + "px")
         .style("display", "block");
 }
 
@@ -119,3 +121,16 @@ function mouseOutEvent(d){
     tooltip.style("display", "none");
 }
 
+function handleClick(d){
+    let countryData = d3.select(this).datum();
+
+    // check if country in lise 
+    if (countryList.has(countryData.properties.name)){
+        countryList.delete(countryData.properties.name);
+    }
+    else{
+        countryList.add(countryData.properties.name);
+    }
+
+    
+}
