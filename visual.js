@@ -35,8 +35,8 @@ let lifeExpec, countries;
 let countryList = new Set()
 
 async function ready(){
-    let lifeExpec = await d3.json("life_expec.json");
-    let countries = await d3.json("countries.json");
+    lifeExpec = await d3.json("life_expec.json");
+    countries = await d3.json("countries.json");
 
     // Create a lookup object from lifeExpecData
     let lifeExpecLookup = {};
@@ -89,15 +89,32 @@ function mouseOverEvent(d){
     let countryData = d3.select(this).datum();
     let [x, y] = d3.pointer(d);
     
+    let nameList = lifeExpec.filter(d => d.Country === countryData.properties.name)
+    let longList = lifeExpec.filter(d => d.Country === countryData.properties.name_long)
+    let formalList = lifeExpec.filter(d => d.Country === countryData.properties.formal_en)
+
+    let finalList;
+
+    if (nameList.length != 0){
+        finalList = nameList;
+    }
+    else if (longList.length != 0) {
+        finalList = longList;
+    } 
+    else {
+        finalList = formalList;
+    }
+    
     // Get the year from the slider
     let sliderYear = d3.select("#yearSlider").property("value");
 
     // Check if lifeExpec data exists for the country
-    if (!countryData.properties.lifeExpec) {
+    // countryData.properties.name or countryData.properties.name_long
+    if (finalList.length == 0) {
         tooltip.html(countryData.properties.name + "<br/>No data available");
     } else {
         // Get the life expectancy data for this year
-        let yearData = countryData.properties.lifeExpec.filter(d => d.Year == sliderYear)[0];
+        let yearData = finalList.filter(d => d.Year == sliderYear)[0];
 
         // If there's no data for this year, display a default message
         if (!yearData) {
