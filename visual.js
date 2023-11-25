@@ -21,9 +21,9 @@ let mapZoom = d3.zoom()
     .on("zoom", handleZoom)
 
 mapSvg.call(mapZoom)
-
-let barWidth = 200;
-let barHeight = 150;
+const margin = { top: 20, right: 30, bottom: 55, left: 70 }
+let barWidth = +400- margin.left - margin.right;
+let barHeight = +400 - margin.top - margin.bottom;
 
 let barSvg = d3.select("#bar-graph-container").append("svg")
     .attr("width", barWidth)
@@ -76,7 +76,9 @@ async function ready(){
         let year = e.target.value;
         document.getElementById('yearDisplay').textContent = year;
     });
+
 }
+
 
 // handles the zooming and panning
 function handleZoom(e){
@@ -144,10 +146,54 @@ function handleClick(d){
     // check if country in lise 
     if (countryList.has(countryData.properties.name)){
         countryList.delete(countryData.properties.name);
+        countryList.delete(countryData.properties.name_long);
+        countryList.delete(countryData.properties.formal_en);
     }
     else{
         countryList.add(countryData.properties.name);
+        countryList.add(countryData.properties.name_long);
+        countryList.add(countryData.properties.formal_en);
     }
 
-    
+    // Update the bar graph
+    updateBarGraph();
+}
+
+function updateBarGraph() {
+    // Get the year from the slider
+    let sliderYear = d3.select("#yearSlider").property("value");
+
+    // Filter the data based on the year and the countries in countryList
+    let filteredData = lifeExpec.filter(d => d.Year == sliderYear && countryList.has(d.Country));
+
+    // Sort the data by life expectancy
+    filteredData.sort((a, b) => d3.descending(a["Life expectancy "], b["Life expectancy "]));
+
+    // Create a scale for the x axis (life expectancy)
+    let xScale = d3.scaleLinear()
+        .domain([0, d3.max(filteredData, d => d["Life expectancy "])])
+        .range([0, barWidth]);
+
+    // Create a scale for the y axis (countries)
+    let yScale = d3.scaleBand()
+        .domain(filteredData.map(d => d.Country))
+        .range([0, barHeight])
+        .padding(0.1);
+
+    // Remove the old bars
+    barSvg.selectAll(".bar").remove();
+
+    // Create the bars
+    barSvg.selectAll(".bar")
+        .data(filteredData)
+        .enter().append("rect")
+        .attr("class", "bar")
+        .attr("x", 0)
+        .attr("y", d => yScale(d.Country))
+        .attr("width", d => xScale(d["Life expectancy "]))
+        .attr("height", yScale.bandwidth());
+
+    // Update the y axis with the new scale
+    barSvg.select(".y-axis")
+        .call(d3.axisLeft(yScale));
 }
