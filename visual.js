@@ -102,8 +102,8 @@ function mouseOverEvent(d){
         }
     }
 
-    tooltip.style("left", (x + 10) + "px")
-        .style("top", (y - 15) + "px")
+    tooltip.style("left", (x) + "px")
+        .style("top", (y) + "px")
         .style("display", "block");
 }
 
