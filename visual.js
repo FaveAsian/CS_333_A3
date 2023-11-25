@@ -22,6 +22,13 @@ let zoom = d3.zoom()
 
 svg.call(zoom)
 
+let barWidth = 200;
+let barHeight = 150;
+
+let barSvg = d3.select("#bar-graph-container").append("svg")
+    .attr("width", barWidth)
+    .attr("height", barHeight);
+
 ready();
 
 let data, countries;

@@ -25,3 +25,7 @@
   padding: 10px;
   display: none;
 }
+
+.bar {
+  fill: steelblue;
+}
