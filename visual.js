@@ -148,11 +148,13 @@ function handleClick(d){
         countryList.delete(countryData.properties.name);
         countryList.delete(countryData.properties.name_long);
         countryList.delete(countryData.properties.formal_en);
+        d3.select(this).style("fill", "lightgray");
     }
     else{
         countryList.add(countryData.properties.name);
         countryList.add(countryData.properties.name_long);
         countryList.add(countryData.properties.formal_en);
+        d3.select(this).style("fill", "blue");
     }
 
     // Update the bar graph
