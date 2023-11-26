@@ -34,7 +34,8 @@ let barSvg = d3.select("#bar-graph-container").append("svg")
 
 ready();
 
-let selectedOption = "Life expectancy";
+let selectedValue = "Life expectancy";
+let selectedText = "Life Expectancy";
 let lifeExpec, countries;
 let countryList = new Set()
 
@@ -243,6 +244,7 @@ function updateBarGraph() {
         .text("Country");
 }
 
-function handleSelectChange() {
-    selectedOption = document.getElementById("variableSelect").value
+function handleSelectChange(e) {
+    selectedOption = e.value;
+    selectedText = e.options[e.selectedIndex].text;
   }
