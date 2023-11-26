@@ -21,13 +21,16 @@ let mapZoom = d3.zoom()
     .on("zoom", handleZoom)
 
 mapSvg.call(mapZoom)
-const margin = { top: 20, right: 30, bottom: 55, left: 70 }
-let barWidth = +400- margin.left - margin.right;
-let barHeight = +400 - margin.top - margin.bottom;
+const margin = { top: 30, right: 30, bottom: 30, left: 100 };
+let barWidth = 600 - margin.left - margin.right; // 400
+let barHeight = 300 - margin.top - margin.bottom; // 400
 
 let barSvg = d3.select("#bar-graph-container").append("svg")
-    .attr("width", barWidth)
-    .attr("height", barHeight);
+        .attr("width", barWidth + margin.left + margin.right)
+        .attr("height", barHeight + margin.top + margin.bottom)
+    .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
 
 ready();
 
@@ -161,6 +164,14 @@ function handleClick(d){
     updateBarGraph();
 }
 
+// Define the scales and axis groups outside the function
+let xScale = d3.scaleLinear().range([0, barWidth]);
+let yScale = d3.scaleBand().range([0, barHeight]).padding(0.1);
+
+let xAxisGroup = barSvg.append("g")
+    .attr("transform", "translate(0," + barHeight + ")");
+let yAxisGroup = barSvg.append("g");
+
 function updateBarGraph() {
     // Get the year from the slider
     let sliderYear = d3.select("#yearSlider").property("value");
@@ -168,19 +179,16 @@ function updateBarGraph() {
     // Filter the data based on the year and the countries in countryList
     let filteredData = lifeExpec.filter(d => d.Year == sliderYear && countryList.has(d.Country));
 
+    // Update the domains of the scales with the new data
+    xScale.domain([0, d3.max(filteredData, d => d["Life expectancy "])]);
+    yScale.domain(filteredData.map(d => d.Country));
+
+    // Update the axes
+    xAxisGroup.transition().duration(500).call(d3.axisBottom(xScale));
+    yAxisGroup.transition().duration(500).call(d3.axisLeft(yScale));
+
     // Sort the data by life expectancy
     filteredData.sort((a, b) => d3.descending(a["Life expectancy "], b["Life expectancy "]));
-
-    // Create a scale for the x axis (life expectancy)
-    let xScale = d3.scaleLinear()
-        .domain([0, d3.max(filteredData, d => d["Life expectancy "])])
-        .range([0, barWidth]);
-
-    // Create a scale for the y axis (countries)
-    let yScale = d3.scaleBand()
-        .domain(filteredData.map(d => d.Country))
-        .range([0, barHeight])
-        .padding(0.1);
 
     // Remove the old bars
     barSvg.selectAll(".bar").remove();
@@ -198,4 +206,22 @@ function updateBarGraph() {
     // Update the y axis with the new scale
     barSvg.select(".y-axis")
         .call(d3.axisLeft(yScale));
+
+    
+
+    // Add label for the x axis
+    xAxisGroup.append("text")
+        .attr("y", 30) // Move the label up
+        .attr("x", barWidth / 2) // Center the label
+        .attr("text-anchor", "middle")
+        .attr("fill", "black") // Set the color to black
+        .text("Life expectancy");
+
+    // Add label for the y axis
+    yAxisGroup.append("text")
+        .attr("y", -10) // Move the label up
+        .attr("x", -20) // Align the label with the start of the axis
+        .attr("text-anchor", "start")
+        .attr("fill", "black") // Set the color to black
+        .text("Country");
 }
