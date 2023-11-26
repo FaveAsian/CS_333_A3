@@ -82,7 +82,6 @@ async function ready(){
         document.getElementById('yearDisplay').textContent = year;
     });
     updateBarGraph();
-    console.log("hello")
 }
 
 
