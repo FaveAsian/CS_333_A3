@@ -120,18 +120,18 @@ function mouseOverEvent(d){
     if (finalList.length == 0) {
         tooltip.html(countryData.properties.name + "<br/>No data available");
     } else {
-        // Get the life expectancy data for this year
+        // Get the data for this year
         let yearData = finalList.filter(d => d.Year == sliderYear)[0];
 
         // If there's no data for this year, display a default message
         if (!yearData) {
             tooltip.html(countryData.properties.name + "<br/>No data for this year");
-        } else if (!yearData["Life expectancy"]) {
-            // If there's no life expectancy data for this country, display a default message
-            tooltip.html(countryData.properties.name + "<br/>No life expectancy data for this year");
+        } else if (!yearData[selectedValue]) {
+            // If there's no selected value data for this country, display a default message
+            tooltip.html(countryData.properties.name + "<br/>No " + selectedText.toLowerCase() + " data for this year");
         } else {
-            // Otherwise, display the country name, the year, and the life expectancy for the slider year
-            tooltip.html(countryData.properties.name + "<br/>Year: " + yearData["Year"] + "<br/>Life expectancy: " + yearData["Life expectancy"]);
+            // Otherwise, display the country name, the year, and the selected value for the slider year
+            tooltip.html(countryData.properties.name + "<br/>Year: " + yearData["Year"] + "<br/>" + selectedText + ": " + yearData[selectedValue]);
         }
     }
 
@@ -193,20 +193,23 @@ let yScale = d3.scaleBand().range([0, barHeight]).padding(0.1);
 let xAxisGroup = barSvg.append("g")
     .attr("transform", "translate(0," + barHeight + ")");
 let yAxisGroup = barSvg.append("g");
+// For the title
 barSvg.append("text")
-    .attr("x", barWidth / 2) // Center the title
-    .attr("y", -10) // Move the title up
+    .attr("id", "bar-title") // Add this line
+    .attr("x", barWidth / 2)
+    .attr("y", -10)
     .attr("text-anchor", "middle")
-    .attr("font-size", "20px") // Set the font size
-    .attr("fill", "black") // Set the color to black
-    .text("Life Expectancy by Country");
+    .attr("font-size", "20px")
+    .attr("fill", "black")
+    .text("Life Expectancy by Country in 2000");
 
-// Add label for the x axis
+// For the x-axis label
 xAxisGroup.append("text")
-    .attr("y", 25) // Move the label down
-    .attr("x", barWidth / 2) // Center the label
+    .attr("id", "x-axis-label") // Add this line
+    .attr("y", 25)
+    .attr("x", barWidth / 2)
     .attr("text-anchor", "middle")
-    .attr("fill", "black") // Set the color to black
+    .attr("fill", "black")
     .text("Life expectancy");
 
 // Add label for the y axis
@@ -224,13 +227,11 @@ function updateBarGraph() {
     // Filter the data based on the year and the countries in countryList
     let filteredData = lifeExpec.filter(d => d.Year == sliderYear && countryList.has(d.Country));
 
-    
-
-    // Sort the data by life expectancy
-    filteredData.sort((a, b) => d3.descending(a["Life expectancy"], b["Life expectancy"]));
+    // Sort the data by selectedValue
+    filteredData.sort((a, b) => d3.descending(a[selectedValue], b[selectedValue]));
 
     // Update the domains of the scales with the new data
-    xScale.domain([0, d3.max(filteredData, d => d["Life expectancy"])]);
+    xScale.domain([0, d3.max(filteredData, d => d[selectedValue])]);
     yScale.domain(filteredData.map(d => d.Country));
 
     // Update the axes
@@ -247,18 +248,16 @@ function updateBarGraph() {
         .attr("class", "bar")
         .attr("x", 0)
         .attr("y", d => yScale(d.Country))
-        .attr("width", d => xScale(d["Life expectancy"]))
+        .attr("width", d => xScale(d[selectedValue]))
         .attr("height", yScale.bandwidth());
 
     // Add a title to each bar
     bars.append("title")
-        .text(d => `Life expectancy: ${d["Life expectancy "]}`);
-
+        .text(d => `${selectedText}: ${d[selectedValue]}`);
 
     // Highlight the bar of the last added country
     bars.filter(d => lastAddedCountry.has(d.Country))
         .attr("fill", "red"); // Change the color to red
-        console.log(lastAddedCountry);
 
     // Update the y axis with the new scale
     barSvg.select(".y-axis")
@@ -266,13 +265,26 @@ function updateBarGraph() {
 }
 
 function handleSelectChange(e) {
-    selectedOption = e.value;
+    selectedValue = e.value;
     selectedText = e.options[e.selectedIndex].text;
-  }
+    
+    let sliderYear = d3.select("#yearSlider").property("value");
+
+    // Update the title and x-axis label
+    d3.select("#bar-title").text(`${selectedText} by Country in ${sliderYear}`);
+    d3.select("#x-axis-label").text(selectedText);
+    
+    // Update the bar graph
+    updateBarGraph();
+}
 
 function handleSliderChange(){
     // Update map with selected 
     updateMap()
     // Update the bar graph
     updateBarGraph();
+    // Update the title
+    
+    let sliderYear = d3.select("#yearSlider").property("value");
+    d3.select("#bar-title").text(`${selectedText} by Country in ${sliderYear}`);
 }
