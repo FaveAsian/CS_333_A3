@@ -77,9 +77,15 @@ async function ready(){
         .attr("fill", "none");
 
     // Add event listener for the slider
-    document.getElementById('yearSlider').addEventListener('input', function(e) {
-        let year = e.target.value;
-        document.getElementById('yearDisplay').textContent = year;
+    d3.select("#yearSlider").on("input", function() {
+        // Get the current value of the slider
+        let year = this.value;
+
+        // Update the year label
+        d3.select("#yearDisplay").text(year);
+
+        // Update the bar graph
+        updateBarGraph();
     });
     updateBarGraph();
 }
