@@ -145,6 +145,8 @@ function mouseOutEvent(d){
     tooltip.style("display", "none");
 }
 
+// Define a variable to keep track of the last added country
+let lastAddedCountry = new Set();
 function handleClick(d){
     let countryData = d3.select(this).datum();
 
@@ -154,12 +156,23 @@ function handleClick(d){
         countryList.delete(countryData.properties.name_long);
         countryList.delete(countryData.properties.formal_en);
         // d3.select(this).style("fill", "lightgray"); // hardcode color for selection as backup
+
+        // If the removed country was the last added, clear lastAddedCountry
+        if (lastAddedCountry.has(countryData.properties.name)) {
+            lastAddedCountry.clear();
+        }
     }
     else{
         countryList.add(countryData.properties.name);
         countryList.add(countryData.properties.name_long);
         countryList.add(countryData.properties.formal_en);
         // d3.select(this).style("fill", "blue"); // hardcode color for selection as backup
+
+        // Update lastAddedCountry with the properties of the added country
+        lastAddedCountry.clear();
+        lastAddedCountry.add(countryData.properties.name);
+        lastAddedCountry.add(countryData.properties.name_long);
+        lastAddedCountry.add(countryData.properties.formal_en);
     }
 
     // Update map with selected 
@@ -188,6 +201,22 @@ barSvg.append("text")
     .attr("fill", "black") // Set the color to black
     .text("Life Expectancy by Country");
 
+// Add label for the x axis
+xAxisGroup.append("text")
+    .attr("y", 25) // Move the label down
+    .attr("x", barWidth / 2) // Center the label
+    .attr("text-anchor", "middle")
+    .attr("fill", "black") // Set the color to black
+    .text("Life expectancy");
+
+// Add label for the y axis
+yAxisGroup.append("text")
+    .attr("y", -10) // Move the label up
+    .attr("x", -20) // Align the label with the start of the axis
+    .attr("text-anchor", "start")
+    .attr("fill", "black") // Set the color to black
+    .text("Country");
+
 function updateBarGraph() {
     // Get the year from the slider
     let sliderYear = d3.select("#yearSlider").property("value");
@@ -212,7 +241,7 @@ function updateBarGraph() {
     barSvg.selectAll(".bar").remove();
 
     // Create the bars
-    barSvg.selectAll(".bar")
+    let bars = barSvg.selectAll(".bar")
         .data(filteredData)
         .enter().append("rect")
         .attr("class", "bar")
@@ -221,27 +250,19 @@ function updateBarGraph() {
         .attr("width", d => xScale(d["Life expectancy"]))
         .attr("height", yScale.bandwidth());
 
+    // Add a title to each bar
+    bars.append("title")
+        .text(d => `Life expectancy: ${d["Life expectancy "]}`);
+
+
+    // Highlight the bar of the last added country
+    bars.filter(d => lastAddedCountry.has(d.Country))
+        .attr("fill", "red"); // Change the color to red
+        console.log(lastAddedCountry);
+
     // Update the y axis with the new scale
     barSvg.select(".y-axis")
         .call(d3.axisLeft(yScale));
-
-    
-
-    // Add label for the x axis
-    xAxisGroup.append("text")
-        .attr("y", 25) // Move the label down
-        .attr("x", barWidth / 2) // Center the label
-        .attr("text-anchor", "middle")
-        .attr("fill", "black") // Set the color to black
-        .text("Life expectancy");
-
-    // Add label for the y axis
-    yAxisGroup.append("text")
-        .attr("y", -10) // Move the label up
-        .attr("x", -20) // Align the label with the start of the axis
-        .attr("text-anchor", "start")
-        .attr("fill", "black") // Set the color to black
-        .text("Country");
 }
 
 function handleSelectChange(e) {
