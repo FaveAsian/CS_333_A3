@@ -1,21 +1,15 @@
 .country {
-  fill: #ccc;
-  stroke: #fff;
-}
-
-.symbol {
-  fill-opacity: .8;
-  stroke: #fff;
-}
-
-.country {
   fill: lightgray;
   stroke: white;
   stroke-width: 0.5;
 }
 
-.country:hover{
+.country:hover {
   fill: red
+}
+
+.country.selected {
+  fill: green
 }
 
 .tooltip {

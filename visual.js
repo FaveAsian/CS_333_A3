@@ -151,17 +151,24 @@ function handleClick(d){
         countryList.delete(countryData.properties.name);
         countryList.delete(countryData.properties.name_long);
         countryList.delete(countryData.properties.formal_en);
-        d3.select(this).style("fill", "lightgray");
+        // d3.select(this).style("fill", "lightgray"); // hardcode color for selection as backup
     }
     else{
         countryList.add(countryData.properties.name);
         countryList.add(countryData.properties.name_long);
         countryList.add(countryData.properties.formal_en);
-        d3.select(this).style("fill", "blue");
+        // d3.select(this).style("fill", "blue"); // hardcode color for selection as backup
     }
 
+    // Update map with selected 
+    updateMap()
     // Update the bar graph
     updateBarGraph();
+}
+
+function updateMap(){
+    mapSvg.selectAll("path")
+        .classed("selected", d => countryList.has(d.properties.name))
 }
 
 // Define the scales and axis groups outside the function
