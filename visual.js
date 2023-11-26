@@ -248,3 +248,10 @@ function handleSelectChange(e) {
     selectedOption = e.value;
     selectedText = e.options[e.selectedIndex].text;
   }
+
+function handleSliderChange(){
+    // Update map with selected 
+    updateMap()
+    // Update the bar graph
+    updateBarGraph();
+}
