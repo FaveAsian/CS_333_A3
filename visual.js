@@ -34,6 +34,7 @@ let barSvg = d3.select("#bar-graph-container").append("svg")
 
 ready();
 
+let selectedOption = "Life expectancy";
 let lifeExpec, countries;
 let countryList = new Set()
 
@@ -124,12 +125,12 @@ function mouseOverEvent(d){
         // If there's no data for this year, display a default message
         if (!yearData) {
             tooltip.html(countryData.properties.name + "<br/>No data for this year");
-        } else if (!yearData["Life expectancy "]) {
+        } else if (!yearData["Life expectancy"]) {
             // If there's no life expectancy data for this country, display a default message
             tooltip.html(countryData.properties.name + "<br/>No life expectancy data for this year");
         } else {
             // Otherwise, display the country name, the year, and the life expectancy for the slider year
-            tooltip.html(countryData.properties.name + "<br/>Year: " + yearData["Year"] + "<br/>Life expectancy: " + yearData["Life expectancy "]);
+            tooltip.html(countryData.properties.name + "<br/>Year: " + yearData["Year"] + "<br/>Life expectancy: " + yearData["Life expectancy"]);
         }
     }
 
@@ -196,10 +197,10 @@ function updateBarGraph() {
     
 
     // Sort the data by life expectancy
-    filteredData.sort((a, b) => d3.descending(a["Life expectancy "], b["Life expectancy "]));
+    filteredData.sort((a, b) => d3.descending(a["Life expectancy"], b["Life expectancy"]));
 
     // Update the domains of the scales with the new data
-    xScale.domain([0, d3.max(filteredData, d => d["Life expectancy "])]);
+    xScale.domain([0, d3.max(filteredData, d => d["Life expectancy"])]);
     yScale.domain(filteredData.map(d => d.Country));
 
     // Update the axes
@@ -216,7 +217,7 @@ function updateBarGraph() {
         .attr("class", "bar")
         .attr("x", 0)
         .attr("y", d => yScale(d.Country))
-        .attr("width", d => xScale(d["Life expectancy "]))
+        .attr("width", d => xScale(d["Life expectancy"]))
         .attr("height", yScale.bandwidth());
 
     // Update the y axis with the new scale
@@ -241,3 +242,7 @@ function updateBarGraph() {
         .attr("fill", "black") // Set the color to black
         .text("Country");
 }
+
+function handleSelectChange() {
+    selectedOption = document.getElementById("variableSelect").value
+  }
