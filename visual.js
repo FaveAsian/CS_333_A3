@@ -21,8 +21,8 @@ let mapZoom = d3.zoom()
     .on("zoom", handleZoom)
 
 mapSvg.call(mapZoom)
-const margin = { top: 30, right: 30, bottom: 30, left: 100 };
-let barWidth = 600 - margin.left - margin.right; // 400
+const margin = { top: 30, right: 30, bottom: 30, left: 250 };
+let barWidth = 800 - margin.left - margin.right; // 400
 let barHeight = 300 - margin.top - margin.bottom; // 400
 
 let barSvg = d3.select("#bar-graph-container").append("svg")
@@ -79,7 +79,7 @@ async function ready(){
         let year = e.target.value;
         document.getElementById('yearDisplay').textContent = year;
     });
-
+    updateBarGraph();
 }
 
 
@@ -178,6 +178,13 @@ let yScale = d3.scaleBand().range([0, barHeight]).padding(0.1);
 let xAxisGroup = barSvg.append("g")
     .attr("transform", "translate(0," + barHeight + ")");
 let yAxisGroup = barSvg.append("g");
+barSvg.append("text")
+    .attr("x", barWidth / 2) // Center the title
+    .attr("y", -10) // Move the title up
+    .attr("text-anchor", "middle")
+    .attr("font-size", "20px") // Set the font size
+    .attr("fill", "black") // Set the color to black
+    .text("Life Expectancy by Country");
 
 function updateBarGraph() {
     // Get the year from the slider
@@ -186,6 +193,11 @@ function updateBarGraph() {
     // Filter the data based on the year and the countries in countryList
     let filteredData = lifeExpec.filter(d => d.Year == sliderYear && countryList.has(d.Country));
 
+    
+
+    // Sort the data by life expectancy
+    filteredData.sort((a, b) => d3.descending(a["Life expectancy "], b["Life expectancy "]));
+
     // Update the domains of the scales with the new data
     xScale.domain([0, d3.max(filteredData, d => d["Life expectancy "])]);
     yScale.domain(filteredData.map(d => d.Country));
@@ -193,9 +205,6 @@ function updateBarGraph() {
     // Update the axes
     xAxisGroup.transition().duration(500).call(d3.axisBottom(xScale));
     yAxisGroup.transition().duration(500).call(d3.axisLeft(yScale));
-
-    // Sort the data by life expectancy
-    filteredData.sort((a, b) => d3.descending(a["Life expectancy "], b["Life expectancy "]));
 
     // Remove the old bars
     barSvg.selectAll(".bar").remove();
@@ -218,7 +227,7 @@ function updateBarGraph() {
 
     // Add label for the x axis
     xAxisGroup.append("text")
-        .attr("y", 30) // Move the label up
+        .attr("y", 25) // Move the label down
         .attr("x", barWidth / 2) // Center the label
         .attr("text-anchor", "middle")
         .attr("fill", "black") // Set the color to black
