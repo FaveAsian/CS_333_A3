@@ -1,4 +1,4 @@
-let width = 960, height = 500;
+let width = 800, height = 400;
 
 let projection = d3.geoMercator()
     .scale(125) // scale to zoom in and out of the map
@@ -21,8 +21,8 @@ let mapZoom = d3.zoom()
     .on("zoom", handleZoom)
 
 mapSvg.call(mapZoom)
-const margin = { top: 30, right: 30, bottom: 30, left: 250 };
-let barWidth = 800 - margin.left - margin.right; // 400
+const margin = { top: 30, right: 30, bottom: 30, left: 165};
+let barWidth = 700 - margin.left - margin.right; // 400
 let barHeight = 300 - margin.top - margin.bottom; // 400
 
 let barSvg = d3.select("#bar-graph-container").append("svg")
