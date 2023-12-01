@@ -35,7 +35,7 @@ let lineSvg = d3.select("#line-graph-container").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
 .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    .attr("transform", "translate(" + 60 + "," + margin.top + ")");
 
 let color = d3.scaleOrdinal(d3.schemeCategory10);
 
@@ -321,7 +321,7 @@ let yAxisGroupLine = lineSvg.append("g")
 let yAxisLabel = lineSvg.append("text")
     .attr("class", "y-axis-label")
     .attr("transform", "rotate(-90)")
-    .attr("y", 0 - margin.left + 50)
+    .attr("y", 0 - margin.left + 100)
     .attr("x", 0 - (height / 2))  // Shift the label 20 pixels to the right
     .attr("dy", "1em")
     .style("text-anchor", "middle");
