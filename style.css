@@ -29,6 +29,10 @@
   /* justify-content: space-between; */
 }
 
-#yearDisplay{
+#yearDisplay, #variable-select{
   padding-right: 25px;
+}
+
+#reset-button{
+
 }

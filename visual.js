@@ -294,3 +294,12 @@ function handleSliderChange(){
     let sliderYear = d3.select("#yearSlider").property("value");
     d3.select("#bar-title").text(`${selectedText} by Country in ${sliderYear}`);
 }
+
+function resetEverything(){
+    countryList.clear();
+
+    // Update map
+    updateMap()
+    // Update the bar graph
+    updateBarGraph();
+}
