@@ -23,3 +23,12 @@
 .bar {
   fill: steelblue;
 }
+
+.entries{
+  display: flex;
+  /* justify-content: space-between; */
+}
+
+#yearDisplay{
+  padding-right: 25px;
+}
