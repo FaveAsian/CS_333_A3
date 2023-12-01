@@ -31,6 +31,13 @@ let barSvg = d3.select("#bar-graph-container").append("svg")
     .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+let lineSvg = d3.select("#line-graph-container").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+.append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+let color = d3.scaleOrdinal(d3.schemeCategory10);
 
 ready();
 
@@ -88,6 +95,7 @@ async function ready(){
         updateBarGraph();
     });
     updateBarGraph();
+    updateLineGraph();
 }
 
 
@@ -185,6 +193,9 @@ function handleClick(d){
     updateMap()
     // Update the bar graph
     updateBarGraph();
+
+    // Update the line graph
+    updateLineGraph();
 }
 
 function updateMap(){
@@ -270,6 +281,84 @@ function updateBarGraph() {
         .call(d3.axisLeft(yScale));
 }
 
+
+
+let xLineScale = d3.scaleLinear()
+    .domain([2000, 2015])
+    .range([0, width]);
+let yLineScale = d3.scaleLinear()
+    .range([height, 0]);
+
+let xAxisLine = d3.axisBottom(xLineScale)
+    .tickValues(d3.range(2000, 2016))  // Generate tick values from 2000 to 2015
+    .tickFormat(d3.format("d"));  // Format the tick values as integers
+let yAxisLine = d3.axisLeft(yLineScale);
+
+let line = d3.line()
+    .x(d => xLineScale(d.Year))
+    .y(d => yLineScale(d[selectedValue]));
+
+// Append the axes
+lineSvg.append("g")
+    .attr("transform", "translate(0," + height + ")")
+    .call(xAxisLine);
+
+// Create the y-axis group once
+let yAxisGroupLine = lineSvg.append("g")
+    .attr("class", "y-axis-line")  // Assign a unique class
+    .attr("transform", `translate(0, 0)`)
+    .call(yAxisLine);  // Call the y-axis here
+
+// Append a y-axis label
+let yAxisLabel = lineSvg.append("text")
+    .attr("class", "y-axis-label")
+    .attr("transform", "rotate(-90)")
+    .attr("y", 0 - margin.left + 50)
+    .attr("x", 0 - (height / 2))  // Shift the label 20 pixels to the right
+    .attr("dy", "1em")
+    .style("text-anchor", "middle");
+
+function updateLineGraph() {
+    // Filter the data based on the countries in countryList
+    let filteredData = lifeExpec.filter(d => countryList.has(d.Country));
+
+    // Group the data by country
+    let dataByCountry = d3.group(filteredData, d => d.Country);
+
+    // Map each group to an object that includes the country name and the values array
+    filteredData = Array.from(dataByCountry, ([Country, values]) => ({Country, values}));
+
+    // Update the domain of the y-axis scale with the new data
+    yLineScale.domain([0, d3.max(filteredData, d => d3.max(d.values, v => v[selectedValue]))]);
+
+    // Select the y-axis and update it with the new scale
+    d3.select(".y-axis-line")  // Select the y-axis using the unique class
+        .transition()
+        .duration(500)
+        .call(d3.axisLeft(yLineScale));
+
+    // Update the y-axis
+    yAxisGroupLine.call(yAxisLine);
+
+    // Remove the old lines
+    lineSvg.selectAll(".line").remove();
+
+    // Bind the data to the lines
+    let countryLines = lineSvg.selectAll(".line")
+        .data(filteredData, d => d.Country);
+
+    // Enter new lines
+    countryLines.enter().append("path")
+        .attr("class", "line")
+        .attr("d", d => line(d.values))
+        .style("stroke", d => color(d.Country))
+        .style("fill", "none");
+
+    // Update the text of the y-axis label
+    yAxisLabel.text(selectedValue);
+}
+
+
 function handleSelectChange(e) {
     selectedValue = e.value;
     selectedText = e.options[e.selectedIndex].text;
@@ -282,6 +371,9 @@ function handleSelectChange(e) {
     
     // Update the bar graph
     updateBarGraph();
+
+    // Update the line graph
+    updateLineGraph();
 }
 
 function handleSliderChange(){
@@ -302,4 +394,6 @@ function resetEverything(){
     updateMap()
     // Update the bar graph
     updateBarGraph();
+    // Update the line graph
+    updateLineGraph();
 }
