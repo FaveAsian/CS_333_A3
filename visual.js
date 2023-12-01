@@ -281,7 +281,15 @@ function updateBarGraph() {
         .call(d3.axisLeft(yScale));
 }
 
-
+// line graph title
+lineSvg.append("text")
+    .attr("id", "line-title") // Add this line
+    .attr("x", width / 2)
+    .attr("y", -10)
+    .attr("text-anchor", "middle")
+    .attr("font-size", "20px")
+    .attr("fill", "black")
+    .text("Life Expectancy Over the Years");
 
 let xLineScale = d3.scaleLinear()
     .domain([2000, 2015])
@@ -368,6 +376,7 @@ function handleSelectChange(e) {
     // Update the title and x-axis label
     d3.select("#bar-title").text(`${selectedText} by Country in ${sliderYear}`);
     d3.select("#x-axis-label").text(selectedText);
+    d3.select("#line-title").text(`${selectedText} Over the Years`);
     
     // Update the bar graph
     updateBarGraph();
