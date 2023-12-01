@@ -149,7 +149,7 @@ function mouseOverEvent(d){
         }
     }
 
-    tooltip.style("left", (x + 10) + "px")
+    tooltip.style("left", (x + 20) + "px")
         .style("top", (y - 15) + "px")
         .style("display", "block");
 }
