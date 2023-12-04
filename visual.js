@@ -109,6 +109,7 @@ async function ready(){
         updateMap();
         updateBarGraph();
         updateLineGraph();
+        updateScatterPlot();
     });
     
 
