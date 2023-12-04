@@ -565,7 +565,8 @@ function updateScatterPlot() {
         .attr("fill", d => color(d.Country))  // Use the color scale
         .merge(circles)
         .attr("cx", d => xScatterScale(+d["Life expectancy"]))
-        .attr("cy", d => yScatterScale(+d[selectedValue]));
+        .attr("cy", d => yScatterScale(+d[selectedValue]))
+        .style("opacity", 0.6);
 
     // Exit old circles
     circles.exit().remove();
