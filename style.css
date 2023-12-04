@@ -29,6 +29,6 @@
   /* justify-content: space-between; */
 }
 
-#yearDisplay, #variable-select{
+#yearDisplay, #variable-select, #reset-button{
   padding-right: 25px;
 }

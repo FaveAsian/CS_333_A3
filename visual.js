@@ -44,7 +44,8 @@ ready();
 let selectedValue = "Life expectancy";
 let selectedText = "Life Expectancy";
 let lifeExpec, countries;
-let countryList = new Set()
+let countryList = new Set();
+let selectedRegions = new Set();
 
 async function ready(){
     lifeExpec = await d3.json("life_expec.json");
@@ -82,6 +83,33 @@ async function ready(){
         .attr("stroke", "black")
         .attr("stroke-width", 2)
         .attr("fill", "none");
+
+    d3.selectAll('input[type="checkbox"]').on('change', function() {
+        selectedRegions.clear()
+        d3.selectAll('input[type="checkbox"]:checked').each(function() {
+            selectedRegions.add(this.value);
+        });
+
+        countries.features.forEach(d => {
+            countryList.add(d.properties.name);
+            countryList.add(d.properties.name_long);
+            countryList.add(d.properties.formal_en);
+            if (selectedRegions.has(d.properties.continent)){
+            }
+            else{
+                if (!selectedRegions.has(d.properties.continent) && countryList.has(d.properties.name)){
+                    countryList.delete(d.properties.name);
+                    countryList.delete(d.properties.name_long);
+                    countryList.delete(d.properties.formal_en);
+                } 
+            }
+        });
+
+        updateMap();
+        updateBarGraph();
+        updateLineGraph();
+    });
+    
 
     // Add event listener for the slider
     d3.select("#yearSlider").on("input", function() {
@@ -164,7 +192,7 @@ let lastAddedCountry = new Set();
 function handleClick(d){
     let countryData = d3.select(this).datum();
 
-    // check if country in lise 
+    // check if country in set 
     if (countryList.has(countryData.properties.name)){
         countryList.delete(countryData.properties.name);
         countryList.delete(countryData.properties.name_long);
