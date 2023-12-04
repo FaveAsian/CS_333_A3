@@ -123,6 +123,7 @@ async function ready(){
 
         // Update the bar graph
         updateBarGraph();
+        updateScatterPlot();
     });
     updateBarGraph();
     updateLineGraph();
@@ -291,12 +292,13 @@ function updateBarGraph() {
     yAxisGroup.transition().duration(500).call(d3.axisLeft(yScale));
 
     // Remove the old bars
-    barSvg.selectAll(".bar").remove();
+    barSvg.selectAll("rect").remove();
 
     // Create the bars
-    let bars = barSvg.selectAll(".bar")
+    let bars = barSvg.selectAll("rect")
         .data(filteredData)
         .enter().append("rect")
+        .attr("class", "bar") // Add this line
         .attr("fill", (d, i) => color(d.Country))
         .attr("x", 0)
         .attr("y", d => yScale(d.Country))
