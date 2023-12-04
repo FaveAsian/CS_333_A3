@@ -294,7 +294,7 @@ function updateBarGraph() {
     let bars = barSvg.selectAll(".bar")
         .data(filteredData)
         .enter().append("rect")
-        .attr("class", "bar")
+        .attr("fill", (d, i) => color(d.Country))
         .attr("x", 0)
         .attr("y", d => yScale(d.Country))
         .attr("width", d => xScale(d[selectedValue]))

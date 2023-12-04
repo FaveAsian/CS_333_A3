@@ -20,10 +20,6 @@
   display: none;
 }
 
-.bar {
-  fill: steelblue;
-}
-
 .entries{
   display: flex;
   /* justify-content: space-between; */
