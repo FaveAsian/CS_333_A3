@@ -1,4 +1,4 @@
-let width = 800, height = 400;
+let width = 700, height = 400;
 
 let projection = d3.geoMercator()
     .scale(125) // scale to zoom in and out of the map
@@ -23,7 +23,7 @@ let mapZoom = d3.zoom()
 mapSvg.call(mapZoom)
 const margin = { top: 30, right: 30, bottom: 30, left: 165};
 let barWidth = 700 - margin.left - margin.right; // 400
-let barHeight = 300 - margin.top - margin.bottom; // 400
+let barHeight = 475 - margin.top - margin.bottom; // 400
 
 let barSvg = d3.select("#bar-graph-container").append("svg")
         .attr("width", barWidth + margin.left + margin.right)
@@ -479,6 +479,13 @@ function handleSliderChange(){
 
 function resetEverything(){
     countryList.clear();
+
+    let allInputs = document.getElementsByTagName("input");
+
+    for (let i = 0, max = allInputs.length; i < max; i++){
+        if (allInputs[i].type === 'checkbox')
+            allInputs[i].checked = false;
+    }
 
     // Update map
     updateMap()
