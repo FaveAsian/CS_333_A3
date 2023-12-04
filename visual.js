@@ -37,7 +37,8 @@ let lineSvg = d3.select("#line-graph-container").append("svg")
 .append("g")
     .attr("transform", "translate(" + 60 + "," + margin.top + ")");
 
-let color = d3.scaleOrdinal(d3.schemeCategory10);
+// Define the color scale
+let color = d3.scaleOrdinal([...d3.schemeTableau10, ...d3.schemePastel1]);
 
 ready();
 
@@ -244,6 +245,9 @@ function updateBarGraph() {
     // Filter the data based on the year and the countries in countryList
     let filteredData = lifeExpec.filter(d => d.Year == sliderYear && countryList.has(d.Country));
 
+    // Filter out the countries with null values
+    filteredData = filteredData.filter(d => d[selectedValue] !== null);
+
     // Sort the data by selectedValue
     filteredData.sort((a, b) => d3.descending(a[selectedValue], b[selectedValue]));
 
@@ -311,6 +315,8 @@ lineSvg.append("g")
     .attr("transform", "translate(0," + height + ")")
     .call(xAxisLine);
 
+
+
 // Create the y-axis group once
 let yAxisGroupLine = lineSvg.append("g")
     .attr("class", "y-axis-line")  // Assign a unique class
@@ -356,11 +362,58 @@ function updateLineGraph() {
         .data(filteredData, d => d.Country);
 
     // Enter new lines
-    countryLines.enter().append("path")
+    let countryLinesEnter = countryLines.enter().append("path")
         .attr("class", "line")
-        .attr("d", d => line(d.values))
-        .style("stroke", d => color(d.Country))
         .style("fill", "none");
+
+    // Update existing lines
+    countryLines = countryLines.merge(countryLinesEnter)
+        .attr("d", d => line(d.values))
+        .style("stroke",d => color(d.Country));
+
+    // Exit old lines
+    countryLines.exit().remove();
+
+    // Flatten the data for the circles
+    let circleData = filteredData.flatMap(d => d.values.map(value => ({...value, Country: d.Country})));
+
+    // Filter the data to remove points with null values
+    let filteredCircleData = circleData.filter(d => d[selectedValue] !== null);
+
+    // Bind the data to the circles
+    let circles = lineSvg.selectAll("circle")
+        .data(filteredCircleData, d => d.Country + d.Year);
+    
+    // Handle the exit selection
+    circles.exit().remove();
+
+    // Select the tooltip div
+    let tooltip = d3.select(".tooltip");
+
+    // Enter new circles
+    let circlesEnter = circles.enter().append("circle")
+        .attr("r", 3.5)
+        .attr("fill", d => color(d.Country))  // Use the color scale
+        .on("mouseover", function(event, d) {
+            // Show the tooltip
+            // Show the tooltip
+            tooltip.style("opacity", 1)
+                .html(`Country: ${d.Country}<br/>Year: ${d.Year}<br/>${selectedValue}: ${d[selectedValue]}`)
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 10) + "px")
+                .style("display", "block");
+        })
+        .on("mouseout", function(d) {
+            // Hide the tooltip
+            tooltip.style("opacity", 0)
+                .style("display", "none");  // Add this line
+        });
+
+    // Update existing circles
+    circles = circles.merge(circlesEnter)
+        .attr("cx", d => xLineScale(d.Year))
+        .attr("cy", d => yLineScale(d[selectedValue]));
+
 
     // Update the text of the y-axis label
     yAxisLabel.text(selectedValue);
