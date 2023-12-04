@@ -317,9 +317,7 @@ function updateBarGraph() {
                 .style("display", "none");
         });
 
-    // Add a title to each bar
-    bars.append("title")
-        .text(d => `${selectedText}: ${d[selectedValue]}`);
+    
 
     // Highlight the bar of the last added country
     bars.filter(d => lastAddedCountry.has(d.Country))
