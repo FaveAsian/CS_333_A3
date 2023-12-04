@@ -109,7 +109,6 @@ async function ready(){
         updateMap();
         updateBarGraph();
         updateLineGraph();
-        updateScatterPlot();
     });
     
 
@@ -298,16 +297,27 @@ function updateBarGraph() {
     let bars = barSvg.selectAll("rect")
         .data(filteredData)
         .enter().append("rect")
-        .attr("class", "bar") // Add this line
-        .attr("fill", (d, i) => color(d.Country))
+        .attr("class", "bar")
+        .attr("fill", d => color(d.Country))
         .attr("x", 0)
         .attr("y", d => yScale(d.Country))
         .attr("width", d => xScale(d[selectedValue]))
-        .attr("height", yScale.bandwidth());
+        .attr("height", yScale.bandwidth())
+        .on("mouseover", function(event, d) {
+            // Show the tooltip
+            tooltip.style("opacity", 1)
+                .html(`Country: ${d.Country}<br/>${selectedValue}: ${d[selectedValue]}`)
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 10) + "px")
+                .style("display", "block");
+        })
+        .on("mouseout", function(d) {
+            // Hide the tooltip
+            tooltip.style("opacity", 0)
+                .style("display", "none");
+        });
 
-    // Add a title to each bar
-    bars.append("title")
-        .text(d => `${selectedText}: ${d[selectedValue]}`);
+    
 
     // Highlight the bar of the last added country
     bars.filter(d => lastAddedCountry.has(d.Country))
@@ -558,7 +568,20 @@ function updateScatterPlot() {
         .merge(circles)
         .attr("cx", d => xScatterScale(+d["Life expectancy"]))
         .attr("cy", d => yScatterScale(+d[selectedValue]))
-        .style("opacity", 0.6);
+        .style("opacity", 0.6)
+        .on("mouseover", function(event, d) {
+            // Show the tooltip
+            tooltip.style("opacity", 1)
+                .html(`Country: ${d.Country}<br/>Life expectancy: ${d["Life expectancy"]}<br/>${selectedValue}: ${d[selectedValue]}`)
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 10) + "px")
+                .style("display", "block");
+        })
+        .on("mouseout", function(d) {
+            // Hide the tooltip
+            tooltip.style("opacity", 0)
+                .style("display", "none");
+        });
 
     // Exit old circles
     circles.exit().remove();
