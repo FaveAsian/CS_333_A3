@@ -38,7 +38,7 @@ let lineSvg = d3.select("#line-graph-container").append("svg")
     .attr("transform", "translate(" + 60 + "," + margin.top + ")");
 
 // Define the color scale
-let color = d3.scaleOrdinal([...d3.schemeTableau10, ...d3.schemePastel1]);
+let color = d3.scaleOrdinal([...d3.schemeTableau10, ...d3.schemePaired]);
 
 ready();
 
