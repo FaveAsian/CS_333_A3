@@ -534,22 +534,14 @@ function updateScatterPlot() {
     // Filter the data based on the year and the countries in countryList
     let filteredData = lifeExpec.filter(d => d.Year == sliderYear && countryList.has(d.Country));
 
-    // Log the filteredData to the console
-    console.log("filteredData:", filteredData);
     // Filter out the countries with null values
     filteredData = filteredData.filter(d => d["Life expectancy"] !== null && d[selectedValue] !== null);
-    // Log the first element of filteredData to the console
-    console.log("First element of filteredData:", filteredData[0]);
     
     // Update the domain of the x-axis scale with the new data
     xScatterScale.domain(d3.extent(filteredData, d => +d["Life expectancy"])).range([margin.left, width - margin.right]);
 
     // Update the domain of the y-axis scale with the new data
     yScatterScale.domain([0, d3.max(filteredData, d => +d[selectedValue])]).range([height - margin.bottom, margin.top]);
-
-    // Log the data and the scales to the console
-    console.log("xScatterScale domain and range:", xScatterScale.domain(), xScatterScale.range());
-    console.log("yScatterScale domain and range:", yScatterScale.domain(), yScatterScale.range());
 
     // Update the x and y axes
     xAxisScatterG.call(xAxisScatter);
