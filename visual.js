@@ -21,7 +21,7 @@ let mapZoom = d3.zoom()
     .on("zoom", handleZoom)
 
 mapSvg.call(mapZoom)
-const margin = { top: 30, right: 30, bottom: 30, left: 165};
+const margin = { top: 30, right: 20, bottom: 30, left: 165};
 let barWidth = 700 - margin.left - margin.right; // 400
 let barHeight = 475 - margin.top - margin.bottom; // 400
 
@@ -37,7 +37,15 @@ let lineSvg = d3.select("#line-graph-container").append("svg")
     .append("g")
     .attr("transform", "translate(" + 60 + "," + margin.top + ")");
 
-let legendSvg = lineSvg.append("g").attr('transform', 'translate(0, 250)');
+// Create the scatterplot SVG
+let scatterSvg = d3.select("#scatterplot-container").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", "translate(" + -10 + "," + margin.top + ")");
+
+let legendSvg = scatterSvg.append("g")
+    .attr("transform", "translate(" + margin.right-40 + "," + margin.top + ")");
 
 // Define the color scale
 let color = d3.scaleOrdinal([...d3.schemeTableau10, ...d3.schemePaired]);
@@ -115,6 +123,7 @@ async function ready(){
         updateBarGraph();
         updateLineGraph();
         updateScatterPlot();
+        updateLegend();
     });
     
 
@@ -133,6 +142,7 @@ async function ready(){
     updateBarGraph();
     updateLineGraph();
     updateScatterPlot();
+    updateLegend();
 }
 
 
@@ -186,14 +196,15 @@ function mouseOverEvent(d){
         }
     }
 
-    tooltip.style("left", (x + 20) + "px")
+    tooltip.style("opacity", 1)
+        .style("left", (x + 20) + "px")
         .style("top", (y - 15) + "px")
         .style("display", "block");
 }
 
 function mouseOutEvent(d){
     // Hide tooltip on mouseout
-    tooltip.style("display", "none");
+    tooltip.style("opacity", 0).style("display", "none");
 }
 
 // Define a variable to keep track of the last added country
@@ -234,6 +245,8 @@ function handleClick(d){
     // Update the line graph
     updateLineGraph();
     updateScatterPlot();
+
+    updateLegend();
 }
 
 function updateMap(){
@@ -445,7 +458,6 @@ function updateLineGraph() {
         .attr("fill", d => color(d.Country))  // Use the color scale
         .on("mouseover", function(event, d) {
             // Show the tooltip
-            // Show the tooltip
             tooltip.style("opacity", 1)
                 .html(`Country: ${d.Country}<br/>Year: ${d.Year}<br/>${selectedValue}: ${d[selectedValue]}`)
                 .style("left", (event.pageX + 10) + "px")
@@ -466,9 +478,6 @@ function updateLineGraph() {
 
     // Update the text of the y-axis label
     yAxisLabel.text(selectedValue);
-
-    // call legend function to update function 
-    updateLegend(filteredData)
 }
 
 
@@ -489,6 +498,8 @@ function handleSelectChange(e) {
     // Update the line graph
     updateLineGraph();
     updateScatterPlot();
+
+    updateLegend();
 }
 
 function handleSliderChange(){
@@ -498,6 +509,8 @@ function handleSliderChange(){
     updateBarGraph();
     // Update the title
     updateScatterPlot();
+
+    updateLegend();
     
     let sliderYear = d3.select("#yearSlider").property("value");
     d3.select("#bar-title").text(`${selectedText} by Country in ${sliderYear}`);
@@ -520,14 +533,8 @@ function resetEverything(){
     // Update the line graph
     updateLineGraph();
     updateScatterPlot();
+    updateLegend();
 }
-
-// Create the scatterplot SVG
-let scatterSvg = d3.select("#scatterplot-container").append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-    .attr("transform", "translate(" + -130 + "," + margin.top + ")");
 
 // Define the x and y scales
 let xScatterScale = d3.scaleLinear().range([margin.left, width - margin.right]);
@@ -598,21 +605,28 @@ function updateScatterPlot() {
 
 }
 
-function updateLegend(data){
-    legendSvg.selectAll('rect')
-        .data(data)
+function updateLegend(){
+    let sliderYear = d3.select("#yearSlider").property("value");
+
+    // Filter the data based on the year and the countries in countryList
+    let filteredData = lifeExpec.filter(d => d.Year == sliderYear && countryList.has(d.Country));
+
+    legendSvg.selectAll('rect').remove()
+    legendSvg.selectAll('text').remove()
+
+    let legendItems = legendSvg.selectAll("g")
+        .data(filteredData)
         .enter()
-        .append('rect')
-        .attr('x', (d, i) => i * 120)
+        .append("g")
+        .attr('transform', (d, i) => `translate(0, ${i * 30})`);
+
+    legendItems.append('rect')
         .attr('width', 20)
         .attr('height', 20)
         .attr('fill', d => color(d.Country));
 
-    legendSvg.selectAll('text')
-        .data(data)
-        .enter()
-        .append('text')
-        .attr('x', (d, i) => i * 120 + 30)
+    legendItems.append('text')
+        .attr('x', 30)
         .attr('y', 15)
         .text(d => d.Country);
 }
