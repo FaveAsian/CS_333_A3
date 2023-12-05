@@ -519,8 +519,7 @@ let scatterSvg = d3.select("#scatterplot-container").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
     .append("g")
-    .attr("transform", "translate(" + -160
-     + "," + margin.top + ")");
+    .attr("transform", "translate(" + -130 + "," + margin.top + ")");
 
 // Define the x and y scales
 let xScatterScale = d3.scaleLinear().range([margin.left, width - margin.right]);
