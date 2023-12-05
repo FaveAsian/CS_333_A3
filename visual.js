@@ -638,6 +638,8 @@ function updateScatterPlot() {
     // Exit old circles
     circles.exit().remove();
 
+    
+
 }
 
 function updateLegend(){
@@ -647,18 +649,21 @@ function updateLegend(){
     let filteredData = lifeExpec.filter(d => d.Year == sliderYear && countryList.has(d.Country));
 
     let legendItems = legendSvg.selectAll(".legend-item")
-        .data(filteredData)
-        .enter()
+        .data(filteredData, d => d.Country); // Use the country name as the key
+
+    // Remove the legend items for countries that are no longer in the filteredData
+    legendItems.exit().remove();
+
+    // Add the legend items for new countries in the filteredData
+    let legendEnter = legendItems.enter()
         .append('div')
         .attr('class', 'legend-item');
 
-    legendItems.append("div")
+    legendEnter.append("div")
         .style('width', '20px')
         .style('height', '20px')
         .style('background-color', d => color(d.Country))
         .style('margin-right', '5px');
     
-    legendItems.append("div").text(d => d.Country);
-
-    legendItems.exit().remove();
+    legendEnter.append("div").text(d => d.Country);
 }
