@@ -358,10 +358,7 @@ let xAxisLine = d3.axisBottom(xLineScale)
 let yAxisLine = d3.axisLeft(yLineScale);
 
 let line = d3.line()
-    .defined(d => {
-        console.log(d.Year, d[selectedValue], xLineScale(d.Year), yLineScale(d[selectedValue]));
-        return !isNaN(d[selectedValue]);
-    })
+    .defined(d => !isNaN(d[selectedValue]))
     .x(d => xLineScale(d.Year))
     .y(d => yLineScale(d[selectedValue]));
 
@@ -422,7 +419,7 @@ function updateLineGraph() {
         .style("fill", "none");
 
     countryLines = countryLinesEnter.merge(countryLines)
-        .attr("d", d => line(d.values))
+        .attr("d", d => line(d.values.filter(v => v[selectedValue] !== null)))
         .style("stroke",d => color(d.Country))
         .style("opacity", d => selectedCountry === null || selectedCountry === d.Country ? 1 : 0.2)
         .on("mouseover", function(event, d) {
@@ -571,6 +568,8 @@ xAxisScatterG.append("text")
     .attr("y", 40) // Adjust this value as needed
     .style("text-anchor", "middle")
     .attr("fill", "black") // Set the color to black
+    .style("font-size", "16px") // Set the font size
+    .style("font-family", "times-new-roman") // Set the font family
     .text("Life Expectancy");
 
 // Create g elements for the y axis
@@ -592,8 +591,16 @@ yAxisLabelG.append("text")
     .attr("dy", "-1.5em")
     .style("text-anchor", "middle")
     .attr("fill", "black") // Set the color to black
+    .style("font-size", "16px") // Set the font size
     .text(selectedValue);
-
+// Create the title
+let scatterTitle = scatterSvg.append("text")
+    .attr("class", "scatter-title")
+    .attr("x", (width + margin.left + margin.right) / 2)
+    .attr("y", margin.top / 2) // Adjust this value as needed
+    .style("text-anchor", "middle")
+    .attr("fill", "black") // Set the color to black
+    .text(`${selectedValue} vs Life Expectancy`);
 
 function updateScatterPlot() {
     // Get the year from the slider
@@ -620,6 +627,8 @@ function updateScatterPlot() {
     yAxisLabelG.select(".axis-title")
         .text(selectedValue);
 
+    // Update the scatterplot title
+    scatterTitle.text(`${selectedValue} vs Life Expectancy`);
     
     // Bind the data to the circles
     let circles = scatterSvg.selectAll("circle")
