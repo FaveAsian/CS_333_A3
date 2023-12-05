@@ -35,7 +35,7 @@ let lineSvg = d3.select("#line-graph-container").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
     .append("g")
-    .attr("transform", "translate(" + 60 + "," + margin.top + ")");
+    .attr("transform", "translate(" + 100 + "," + margin.top + ")");
 
 // Create the scatterplot SVG
 let scatterSvg = d3.select("#scatterplot-container").append("svg")
@@ -44,8 +44,7 @@ let scatterSvg = d3.select("#scatterplot-container").append("svg")
     .append("g")
     .attr("transform", "translate(" + -10 + "," + margin.top + ")");
 
-let legendSvg = scatterSvg.append("g")
-    .attr("transform", "translate(" + margin.right-40 + "," + margin.top + ")");
+let legendSvg = d3.select("#legend-container")
 
 // Define the color scale
 let color = d3.scaleOrdinal([...d3.schemeTableau10, ...d3.schemePaired]);
@@ -389,7 +388,7 @@ let yAxisGroupLine = lineSvg.append("g")
 let yAxisLabel = lineSvg.append("text")
     .attr("class", "y-axis-label")
     .attr("transform", "rotate(-90)")
-    .attr("y", 0 - margin.left + 100)
+    .attr("y", 0 - margin.left + 70)
     .attr("x", 0 - (height / 2))  // Shift the label 20 pixels to the right
     .attr("dy", "1em")
     .style("text-anchor", "middle");
@@ -611,22 +610,20 @@ function updateLegend(){
     // Filter the data based on the year and the countries in countryList
     let filteredData = lifeExpec.filter(d => d.Year == sliderYear && countryList.has(d.Country));
 
-    legendSvg.selectAll('rect').remove()
-    legendSvg.selectAll('text').remove()
-
-    let legendItems = legendSvg.selectAll("g")
+    let legendItems = legendSvg.selectAll(".legend-item")
         .data(filteredData)
         .enter()
-        .append("g")
-        .attr('transform', (d, i) => `translate(0, ${i * 30})`);
+        .append('div')
+        .attr('class', 'legend-item');
 
-    legendItems.append('rect')
-        .attr('width', 20)
-        .attr('height', 20)
-        .attr('fill', d => color(d.Country));
-
-    legendItems.append('text')
-        .attr('x', 30)
-        .attr('y', 15)
+    legendItems.append("div")
+        .style('width', '20px')
+        .style('height', '20px')
+        .style('background-color', d => color(d.Country))
+        .style('margin-right', '5px');
+    
+    legendItems.append("div")
         .text(d => d.Country);
+    
+    legendItems.exit().remove()
 }
