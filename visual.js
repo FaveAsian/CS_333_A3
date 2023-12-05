@@ -675,10 +675,33 @@ function updateLegend(){
     legendEnter.append("div").text(d => d.Country);
 }
 
+
+let dataEx = {
+    "Life expectancy": "years",
+    "Adult Mortality": "per 1000 population [15-60 years old]",
+    "infant deaths": "per 1000 population",
+    "Alcohol": "per capita [age 15+] consumption in litres",
+    "percentage_expenditure": "percent of GDP per capita",
+    "Hepatitis_B": "percent of HepB immunization among 1-year-olds",
+    "Measles": "cases per 1000 population",
+    "BMI": "Average BMI of Population",
+    "under_five_deaths": "per 1000 population",
+    "Polio": "percent of Polio immunization among 1-year-olds",
+    "total_expenditure": "percent of total government expenditure on health",
+    "Diphtheria": "percent of DTP3 immunization among 1-year-olds",
+    "HIV_AIDS": "deaths per 1000 live births by [age 0-4]",
+    "GDP": "per capita [USD]",
+    "Population": "Number of People",
+    "thinness_1_19": "percent of thin 10-19 year olds",
+    "thinness_5_9": "percent of thin 5-9 year olds",
+    "Income_composition_of_resources": "income composition of resources [0-1]",
+    "Schooling": "years of schooling"
+}
+
 function handleMouseOver(event, d) {
     // Show the tooltip
     tooltip.style("opacity", 1)
-        .html(`Country: ${d.Country}<br/>Life expectancy: ${d["Life expectancy"]}<br/>${selectedValue}: ${d[selectedValue]}`)
+        .html(`Country: ${d.Country}<br/>Life expectancy (years): ${d["Life expectancy"]}<br/>${selectedValue} (${dataEx[selectedValue]}): ${d[selectedValue]}`)
         .style("left", (event.pageX + 10) + "px")
         .style("top", (event.pageY - 10) + "px")
         .style("display", "block");
