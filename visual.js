@@ -622,8 +622,7 @@ function updateLegend(){
         .style('background-color', d => color(d.Country))
         .style('margin-right', '5px');
     
-    legendItems.append("div")
-        .text(d => d.Country);
-    
-    legendItems.exit().remove()
+    legendItems.append("div").text(d => d.Country);
+
+    legendItems.exit().remove();
 }
