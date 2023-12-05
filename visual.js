@@ -90,21 +90,16 @@ async function ready(){
         d3.selectAll('input[type="checkbox"]:checked').each(function() {
             selectedRegions.add(this.value);
         });
-
+        let tempSet = new Set()
         countries.features.forEach(d => {
-            countryList.add(d.properties.name);
-            countryList.add(d.properties.name_long);
-            countryList.add(d.properties.formal_en);
             if (selectedRegions.has(d.properties.continent)){
-            }
-            else{
-                if (!selectedRegions.has(d.properties.continent) && countryList.has(d.properties.name)){
-                    countryList.delete(d.properties.name);
-                    countryList.delete(d.properties.name_long);
-                    countryList.delete(d.properties.formal_en);
-                } 
+                tempSet.add(d.properties.name);
+                tempSet.add(d.properties.name_long);
+                tempSet.add(d.properties.formal_en);
             }
         });
+
+        countryList = new Set([...countryList, ...tempSet])
 
         updateMap();
         updateBarGraph();
