@@ -34,7 +34,7 @@ let barSvg = d3.select("#bar-graph-container").append("svg")
 let lineSvg = d3.select("#line-graph-container").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
-.append("g")
+    .append("g")
     .attr("transform", "translate(" + 60 + "," + margin.top + ")");
 
 // Define the color scale
@@ -515,10 +515,12 @@ function resetEverything(){
 }
 
 // Create the scatterplot SVG
-let scatterSvg = d3.select("#scatterplot-container")
-    .append("svg")
-    .attr("width", width)
-    .attr("height", height);
+let scatterSvg = d3.select("#scatterplot-container").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", "translate(" + -160
+     + "," + margin.top + ")");
 
 // Define the x and y scales
 let xScatterScale = d3.scaleLinear().range([margin.left, width - margin.right]);
@@ -530,7 +532,7 @@ let yAxisScatter = d3.axisLeft(yScatterScale);
 
 // Create g elements for the x and y axes
 let xAxisScatterG = scatterSvg.append("g")
-    .attr("transform", `translate(0,${height - margin.bottom - 50})`);
+    .attr("transform", `translate(0,${height - margin.bottom})`);
 let yAxisScatterG = scatterSvg.append("g")
     .attr("transform", `translate(${margin.left},0)`);
 
