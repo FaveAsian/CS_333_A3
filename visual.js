@@ -181,20 +181,20 @@ function mouseOverEvent(d){
     // Check if lifeExpec data exists for the country
     // countryData.properties.name or countryData.properties.name_long
     if (finalList.length == 0) {
-        tooltip.html(countryData.properties.name + "<br/>No data available");
+        tooltip.html("Country: "+countryData.properties.name_long + "<br/>No data available");
     } else {
         // Get the data for this year
         let yearData = finalList.filter(d => d.Year == sliderYear)[0];
 
         // If there's no data for this year, display a default message
         if (!yearData) {
-            tooltip.html(countryData.properties.name + "<br/>No data for this year");
+            tooltip.html("Country: "+countryData.properties.name_long + "<br/>No data for this year");
         } else if (!yearData[selectedValue]) {
             // If there's no selected value data for this country, display a default message
-            tooltip.html(countryData.properties.name + "<br/>No " + selectedText.toLowerCase() + " data for this year");
+            tooltip.html("Country: "+countryData.properties.name_long+ "<br/>No " + selectedText + " data for this year");
         } else {
             // Otherwise, display the country name, the year, and the selected value for the slider year
-            tooltip.html(countryData.properties.name + "<br/>Year: " + yearData["Year"] + "<br/>" + selectedText + ": " + yearData[selectedValue]);
+            tooltip.html("Country: "+countryData.properties.name_long + "<br/>Year: " + yearData["Year"] + "<br/>" + selectedValue + " ("+ dataEx[selectedValue] +"): " + yearData[selectedValue]);
         }
     }
 
