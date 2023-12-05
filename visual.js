@@ -586,7 +586,7 @@ let yAxisLabelG = scatterSvg.append("g")
 yAxisLabelG.append("text")
     .attr("class", "axis-title")
     .attr("transform", "rotate(-90)")
-    .attr("y", -20)
+    .attr("y", -45)
     .attr("x", (-height+80) / 2) // Move the title down along the rotated y-axis
     .attr("dy", "-1.5em")
     .style("text-anchor", "middle")
@@ -647,9 +647,6 @@ function updateScatterPlot() {
 
     // Exit old circles
     circles.exit().remove();
-
-    
-
 }
 
 function updateLegend(){
