@@ -37,6 +37,8 @@ let lineSvg = d3.select("#line-graph-container").append("svg")
     .append("g")
     .attr("transform", "translate(" + 60 + "," + margin.top + ")");
 
+let legendSvg = lineSvg.append("g").attr('transform', 'translate(0, 250)');
+
 // Define the color scale
 let color = d3.scaleOrdinal([...d3.schemeTableau10, ...d3.schemePaired]);
 
@@ -47,6 +49,7 @@ let selectedText = "Life Expectancy";
 let lifeExpec, countries;
 let countryList = new Set();
 let selectedRegions = new Set();
+let deletedRegions = new Set();
 
 async function ready(){
     lifeExpec = await d3.json("life_expec.json");
@@ -87,19 +90,26 @@ async function ready(){
 
     d3.selectAll('input[type="checkbox"]').on('change', function() {
         selectedRegions.clear()
+        deletedRegions.clear()
         d3.selectAll('input[type="checkbox"]:checked').each(function() {
-            selectedRegions.add(this.value);
-        });
-        let tempSet = new Set()
-        countries.features.forEach(d => {
-            if (selectedRegions.has(d.properties.continent)){
-                tempSet.add(d.properties.name);
-                tempSet.add(d.properties.name_long);
-                tempSet.add(d.properties.formal_en);
-            }
+            countries.features.forEach(d => {
+                if (this.value === d.properties.continent){
+                    countryList.add(d.properties.name);
+                    countryList.add(d.properties.name_long);
+                    countryList.add(d.properties.formal_en);
+                }
+            });
         });
 
-        countryList = new Set([...countryList, ...tempSet])
+        d3.selectAll('input[type="checkbox"]:not(:checked)').each(function(){
+            countries.features.forEach(d => {
+                if (this.value === d.properties.continent && countryList.has(d.properties.name)){
+                    countryList.delete(d.properties.name);
+                    countryList.delete(d.properties.name_long);
+                    countryList.delete(d.properties.formal_en);
+                }
+            });
+        });
 
         updateMap();
         updateBarGraph();
@@ -456,6 +466,9 @@ function updateLineGraph() {
 
     // Update the text of the y-axis label
     yAxisLabel.text(selectedValue);
+
+    // call legend function to update function 
+    updateLegend(filteredData)
 }
 
 
@@ -583,4 +596,23 @@ function updateScatterPlot() {
     // Exit old circles
     circles.exit().remove();
 
+}
+
+function updateLegend(data){
+    legendSvg.selectAll('rect')
+        .data(data)
+        .enter()
+        .append('rect')
+        .attr('x', (d, i) => i * 120)
+        .attr('width', 20)
+        .attr('height', 20)
+        .attr('fill', d => color(d.Country));
+
+    legendSvg.selectAll('text')
+        .data(data)
+        .enter()
+        .append('text')
+        .attr('x', (d, i) => i * 120 + 30)
+        .attr('y', 15)
+        .text(d => d.Country);
 }
