@@ -42,7 +42,7 @@ let scatterSvg = d3.select("#scatterplot-container").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
     .append("g")
-    .attr("transform", "translate(" + -10 + "," + margin.top + ")");
+    .attr("transform", "translate(" + -20 + "," + margin.top + ")");
 
 let legendSvg = d3.select("#legend-container")
 
