@@ -49,7 +49,6 @@ let legendSvg = d3.select("#legend-container")
 // Define the color scale
 let color = d3.scaleOrdinal([...d3.schemeTableau10, ...d3.schemePaired]);
 
-ready();
 
 let selectedValue = "Life expectancy";
 let selectedText = "Life Expectancy";
@@ -144,6 +143,7 @@ async function ready(){
     updateLegend();
 }
 
+ready();
 
 // handles the zooming and panning
 function handleZoom(e){
@@ -535,6 +535,8 @@ function resetEverything(){
     updateLegend();
 }
 
+
+
 // Define the x and y scales
 let xScatterScale = d3.scaleLinear().range([margin.left, width - margin.right]);
 let yScatterScale = d3.scaleLinear().range([height - margin.bottom, margin.top]);
@@ -543,15 +545,43 @@ let yScatterScale = d3.scaleLinear().range([height - margin.bottom, margin.top])
 let xAxisScatter = d3.axisBottom(xScatterScale);
 let yAxisScatter = d3.axisLeft(yScatterScale);
 
-// Create g elements for the x and y axes
+// Create g elements for the x axes
 let xAxisScatterG = scatterSvg.append("g")
     .attr("transform", `translate(0,${height - margin.bottom})`);
+
+// Update the x axes
+xAxisScatterG.call(xAxisScatter);
+
+// Add x-axis title
+xAxisScatterG.append("text")
+    .attr("class", "axis-title")
+    .attr("x", (width + margin.left + margin.right-50) / 2)
+    .attr("y", 40) // Adjust this value as needed
+    .style("text-anchor", "middle")
+    .attr("fill", "black") // Set the color to black
+    .text("Life Expectancy");
+
+// Create g elements for the y axis
 let yAxisScatterG = scatterSvg.append("g")
+    .attr("class", "y-axis")
     .attr("transform", `translate(${margin.left},0)`);
 
-// Update the x and y axes
-xAxisScatterG.call(xAxisScatter);
-yAxisScatterG.call(yAxisScatter);
+// Create a group for the y-axis label
+let yAxisLabelG = scatterSvg.append("g")
+    .attr("class", "y-axis-label")
+    .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+// Add y-axis title
+yAxisLabelG.append("text")
+    .attr("class", "axis-title")
+    .attr("transform", "rotate(-90)")
+    .attr("y", -20)
+    .attr("x", (-height+80) / 2) // Move the title down along the rotated y-axis
+    .attr("dy", "-1.5em")
+    .style("text-anchor", "middle")
+    .attr("fill", "black") // Set the color to black
+    .text(selectedValue);
+
 
 function updateScatterPlot() {
     // Get the year from the slider
@@ -571,8 +601,14 @@ function updateScatterPlot() {
 
     // Update the x and y axes
     xAxisScatterG.call(xAxisScatter);
+    // Update the y axis
     yAxisScatterG.call(yAxisScatter);
 
+    // Update the y-axis title
+    yAxisLabelG.select(".axis-title")
+        .text(selectedValue);
+
+    
     // Bind the data to the circles
     let circles = scatterSvg.selectAll("circle")
         .data(filteredData, d => d.Country);
