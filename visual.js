@@ -1,5 +1,6 @@
 let width = 700, height = 400;
 
+let selectedCountry = null;
 let projection = d3.geoMercator()
     .scale(125) // scale to zoom in and out of the map
     .translate([width / 2, height / 2]);
@@ -321,19 +322,8 @@ function updateBarGraph() {
         .attr("y", d => yScale(d.Country))
         .attr("width", d => xScale(d[selectedValue]))
         .attr("height", yScale.bandwidth())
-        .on("mouseover", function(event, d) {
-            // Show the tooltip
-            tooltip.style("opacity", 1)
-                .html(`Country: ${d.Country}<br/>${selectedValue}: ${d[selectedValue]}`)
-                .style("left", (event.pageX + 10) + "px")
-                .style("top", (event.pageY - 10) + "px")
-                .style("display", "block");
-        })
-        .on("mouseout", function(d) {
-            // Hide the tooltip
-            tooltip.style("opacity", 0)
-                .style("display", "none");
-        });
+        .on("mouseover", handleMouseOver)
+        .on("mouseout", handleMouseOut);
 
     
 
@@ -368,6 +358,10 @@ let xAxisLine = d3.axisBottom(xLineScale)
 let yAxisLine = d3.axisLeft(yLineScale);
 
 let line = d3.line()
+    .defined(d => {
+        console.log(d.Year, d[selectedValue], xLineScale(d.Year), yLineScale(d[selectedValue]));
+        return !isNaN(d[selectedValue]);
+    })
     .x(d => xLineScale(d.Year))
     .y(d => yLineScale(d[selectedValue]));
 
@@ -427,10 +421,42 @@ function updateLineGraph() {
         .attr("class", "line")
         .style("fill", "none");
 
-    // Update existing lines
-    countryLines = countryLines.merge(countryLinesEnter)
+    countryLines = countryLinesEnter.merge(countryLines)
         .attr("d", d => line(d.values))
-        .style("stroke",d => color(d.Country));
+        .style("stroke",d => color(d.Country))
+        .style("opacity", d => selectedCountry === null || selectedCountry === d.Country ? 1 : 0.2)
+        .on("mouseover", function(event, d) {
+            // Update the selected country
+            selectedCountry = d.Country;
+
+            // Update the opacities
+            scatterSvg.selectAll("circle")
+                .style("opacity", d => selectedCountry === d.Country ? 1 : 0.2);
+            lineSvg.selectAll(".line")
+                .style("opacity", d => selectedCountry === d.Country ? 1 : 0.2);
+            lineSvg.selectAll("circle")
+                .style("opacity", d => selectedCountry === d.Country ? 1 : 0.2);
+            barSvg.selectAll(".bar")
+                .style("opacity", d => selectedCountry === d.Country ? 1 : 0.2);
+            legendSvg.selectAll(".legend-item")
+                .style("opacity", d => selectedCountry === d.Country ? 1 : 0.2);
+        })
+        .on("mouseout", function(d) {
+            // Reset the selected country
+            selectedCountry = null;
+
+            // Reset the opacities
+            scatterSvg.selectAll("circle")
+                .style("opacity", 0.8);
+            lineSvg.selectAll(".line")
+                .style("opacity", 0.8);
+            lineSvg.selectAll("circle")
+                .style("opacity", 0.8);
+            barSvg.selectAll(".bar")
+                .style("opacity", 0.8);
+            legendSvg.selectAll(".legend-item")
+                .style("opacity", 0.8);
+        });
 
     // Exit old lines
     countryLines.exit().remove();
@@ -439,41 +465,27 @@ function updateLineGraph() {
     let circleData = filteredData.flatMap(d => d.values.map(value => ({...value, Country: d.Country})));
 
     // Filter the data to remove points with null values
-    let filteredCircleData = circleData.filter(d => d[selectedValue] !== null);
-
+    let filteredCircleData = circleData.filter(d => d[selectedValue] !== null && !isNaN(d[selectedValue]));
+    console.log(filteredCircleData);
     // Bind the data to the circles
     let circles = lineSvg.selectAll("circle")
         .data(filteredCircleData, d => d.Country + d.Year);
-    
+
     // Handle the exit selection
     circles.exit().remove();
-
-    // Select the tooltip div
-    let tooltip = d3.select(".tooltip");
 
     // Enter new circles
     let circlesEnter = circles.enter().append("circle")
         .attr("r", 3.5)
         .attr("fill", d => color(d.Country))  // Use the color scale
-        .on("mouseover", function(event, d) {
-            // Show the tooltip
-            tooltip.style("opacity", 1)
-                .html(`Country: ${d.Country}<br/>Year: ${d.Year}<br/>${selectedValue}: ${d[selectedValue]}`)
-                .style("left", (event.pageX + 10) + "px")
-                .style("top", (event.pageY - 10) + "px")
-                .style("display", "block");
-        })
-        .on("mouseout", function(d) {
-            // Hide the tooltip
-            tooltip.style("opacity", 0)
-                .style("display", "none");  // Add this line
-        });
+        .on("mouseover", handleMouseOver)
+        .on("mouseout", handleMouseOut);
 
     // Update existing circles
     circles = circles.merge(circlesEnter)
         .attr("cx", d => xLineScale(d.Year))
-        .attr("cy", d => yLineScale(d[selectedValue]));
-
+        .attr("cy", d => yLineScale(d[selectedValue]))
+        .style("opacity", d => selectedCountry === null ? 0.6 : (selectedCountry === d.Country ? 1 : 0.2));
 
     // Update the text of the y-axis label
     yAxisLabel.text(selectedValue);
@@ -621,19 +633,8 @@ function updateScatterPlot() {
         .attr("cx", d => xScatterScale(+d["Life expectancy"]))
         .attr("cy", d => yScatterScale(+d[selectedValue]))
         .style("opacity", 0.6)
-        .on("mouseover", function(event, d) {
-            // Show the tooltip
-            tooltip.style("opacity", 1)
-                .html(`Country: ${d.Country}<br/>Life expectancy: ${d["Life expectancy"]}<br/>${selectedValue}: ${d[selectedValue]}`)
-                .style("left", (event.pageX + 10) + "px")
-                .style("top", (event.pageY - 10) + "px")
-                .style("display", "block");
-        })
-        .on("mouseout", function(d) {
-            // Hide the tooltip
-            tooltip.style("opacity", 0)
-                .style("display", "none");
-        });
+        .on("mouseover", handleMouseOver)
+        .on("mouseout", handleMouseOut);
 
     // Exit old circles
     circles.exit().remove();
@@ -657,13 +658,60 @@ function updateLegend(){
     // Add the legend items for new countries in the filteredData
     let legendEnter = legendItems.enter()
         .append('div')
-        .attr('class', 'legend-item');
+        .attr('class', 'legend-item')
+        .on("mouseover", handleMouseOver)
+        .on("mouseout", handleMouseOut);
 
     legendEnter.append("div")
         .style('width', '20px')
         .style('height', '20px')
         .style('background-color', d => color(d.Country))
         .style('margin-right', '5px');
-    
+        
     legendEnter.append("div").text(d => d.Country);
+}
+
+function handleMouseOver(event, d) {
+    // Show the tooltip
+    tooltip.style("opacity", 1)
+        .html(`Country: ${d.Country}<br/>Life expectancy: ${d["Life expectancy"]}<br/>${selectedValue}: ${d[selectedValue]}`)
+        .style("left", (event.pageX + 10) + "px")
+        .style("top", (event.pageY - 10) + "px")
+        .style("display", "block");
+
+    // Update the selected country
+    selectedCountry = d.Country;
+
+    // Update the opacities
+    scatterSvg.selectAll("circle")
+        .style("opacity", d => selectedCountry === d.Country ? 1 : 0.2);
+    lineSvg.selectAll(".line")
+        .style("opacity", d => selectedCountry === d.Country ? 1 : 0.2);
+    lineSvg.selectAll("circle")
+        .style("opacity", d => selectedCountry === d.Country ? 1 : 0.2);
+    barSvg.selectAll(".bar")
+        .style("opacity", d => selectedCountry === d.Country ? 1 : 0.2);
+    legendSvg.selectAll(".legend-item")
+        .style("opacity", d => selectedCountry === d.Country ? 1 : 0.2);
+}
+
+function handleMouseOut(d) {
+    // Hide the tooltip
+    tooltip.style("opacity", 0)
+        .style("display", "none");
+
+    // Clear the selected country
+    selectedCountry = null;
+
+    // Reset the opacities
+    scatterSvg.selectAll("circle")
+        .style("opacity", 0.8);
+    lineSvg.selectAll(".line")
+        .style("opacity", 0.8);
+    lineSvg.selectAll("circle")
+        .style("opacity", 0.8);
+    barSvg.selectAll(".bar")
+        .style("opacity", 0.8);
+    legendSvg.selectAll(".legend-item")
+        .style("opacity", 0.8);
 }
