@@ -57,7 +57,7 @@ let lifeExpec, countries;
 let countryList = new Set();
 let selectedRegions = new Set();
 let deletedRegions = new Set();
-
+let manuallySelectedCountries = new Set();
 async function ready(){
     lifeExpec = await d3.json("life_expec.json");
     countries = await d3.json("countries.json");
@@ -96,27 +96,29 @@ async function ready(){
         .attr("fill", "none");
 
     d3.selectAll('input[type="checkbox"]').on('change', function() {
-        selectedRegions.clear()
-        deletedRegions.clear()
-        d3.selectAll('input[type="checkbox"]:checked').each(function() {
+        // Get the current checkbox value
+        let currentContinent = this.value;
+
+        // If the checkbox is checked
+        if (this.checked) {
+            // Add countries from the current continent to countryList
             countries.features.forEach(d => {
-                if (this.value === d.properties.continent){
+                if (d.properties.continent === currentContinent && !manuallySelectedCountries.has(d.properties.name)) {
                     countryList.add(d.properties.name);
                     countryList.add(d.properties.name_long);
                     countryList.add(d.properties.formal_en);
                 }
             });
-        });
-
-        d3.selectAll('input[type="checkbox"]:not(:checked)').each(function(){
+        } else {
+            // If the checkbox is unchecked, remove countries from the current continent from countryList
             countries.features.forEach(d => {
-                if (this.value === d.properties.continent && countryList.has(d.properties.name)){
+                if (d.properties.continent === currentContinent && !manuallySelectedCountries.has(d.properties.name)) {
                     countryList.delete(d.properties.name);
                     countryList.delete(d.properties.name_long);
                     countryList.delete(d.properties.formal_en);
                 }
             });
-        });
+        }
 
         updateMap();
         updateBarGraph();
@@ -219,10 +221,10 @@ function handleClick(d){
         countryList.delete(countryData.properties.formal_en);
         // d3.select(this).style("fill", "lightgray"); // hardcode color for selection as backup
 
-        // If the removed country was the last added, clear lastAddedCountry
-        if (lastAddedCountry.has(countryData.properties.name)) {
-            lastAddedCountry.clear();
+        if (manuallySelectedCountries.has(selectedCountry)){
+            manuallySelectedCountries.delete(selectedCountry);
         }
+        
     }
     else{
         countryList.add(countryData.properties.name);
@@ -235,6 +237,8 @@ function handleClick(d){
         lastAddedCountry.add(countryData.properties.name);
         lastAddedCountry.add(countryData.properties.name_long);
         lastAddedCountry.add(countryData.properties.formal_en);
+        // When a country is manually selected
+        manuallySelectedCountries.add(selectedCountry);
     }
 
     // Update map with selected 
@@ -324,12 +328,6 @@ function updateBarGraph() {
         .attr("height", yScale.bandwidth())
         .on("mouseover", handleMouseOver)
         .on("mouseout", handleMouseOut);
-
-    
-
-    // Highlight the bar of the last added country
-    bars.filter(d => lastAddedCountry.has(d.Country))
-        .attr("fill", "red"); // Change the color to red
 
     // Update the y axis with the new scale
     barSvg.select(".y-axis")
